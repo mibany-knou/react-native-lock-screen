@@ -12,6 +12,7 @@ import com.andrognito.patternlockview.listener.PatternLockViewListener;
 import com.andrognito.patternlockview.utils.PatternLockUtils;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.ViewGroupManager;
@@ -41,46 +42,67 @@ public class RNLockScreen extends ViewGroupManager<ViewGroup> {
         context = reactContext;
 
         frameLayout = new FrameLayout(reactContext);
+        patternLockView = new PatternLockView(context);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        patternLockView.setLayoutParams(params);
+        patternLockView.setTactileFeedbackEnabled(true);
+        patternLockView.addPatternLockListener(patternLockViewListener);
+
+        frameLayout.addView(patternLockView);
+
         return frameLayout;
     }
 
     @ReactProp(name = "props")
     public void props(final FrameLayout frameLayout, ReadableMap props) {
-        if (patternLockView == null) {
-            patternLockView = new PatternLockView(context);
-
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER_HORIZONTAL;
-
-            patternLockView.setLayoutParams(params);
-
-            patternLockView.setMinimumWidth(props.getInt("width") + 1000);
-
-            patternLockView.setDotCount(props.getInt("dotCount") / 3);
-            patternLockView.setDotNormalSize(props.getInt("dotNormalSize"));
-            patternLockView.setDotSelectedSize(props.getInt("dotSelectedSize"));
-            patternLockView.setPathWidth(props.getInt("pathWidth"));
-            patternLockView.setAspectRatioEnabled(props.getBoolean("aspectRatioEnabled"));
-
-            if (props.getString("aspectRatio").equalsIgnoreCase("SQUARE")) {
-                patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_SQUARE);
-            } else if (props.getString("aspectRatio").equalsIgnoreCase("WIDTH_BIAS")) {
-                patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_WIDTH_BIAS);
-            } else if (props.getString("aspectRatio").equalsIgnoreCase("HEIGHT_BIAS")) {
-                patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_HEIGHT_BIAS);
+        ReadableMapKeySetIterator keySetIterator = props.keySetIterator();
+        while (keySetIterator.hasNextKey()) {
+            String key = keySetIterator.nextKey();
+            if (key.equals("width")) {
+                patternLockView.setMinimumWidth(props.getInt("width") + 1000);
             }
+            else if (key.equals("dotCount")) {
+                patternLockView.setDotCount(props.getInt("dotCount") / 3);
+            }
+            else if (key.equals("dotNormalSize")) {
+                patternLockView.setDotNormalSize(props.getInt("dotNormalSize"));
+            }
+            else if (key.equals("dotSelectedSize")) {
+                patternLockView.setDotSelectedSize(props.getInt("dotSelectedSize"));
+            }
+            else if (key.equals("pathWidth")) {
+                patternLockView.setPathWidth(props.getInt("pathWidth"));
+            }
+            else if (key.equals("aspectRatioEnabled")) {
+                patternLockView.setAspectRatioEnabled(props.getBoolean("aspectRatioEnabled"));
+            }
+            else if (key.equals("aspectRatio")) {
 
-            patternLockView.setTactileFeedbackEnabled(true);
-            patternLockView.setNormalStateColor(Color.parseColor(props.getString("normalStateColor")));
-            patternLockView.setCorrectStateColor(Color.parseColor(props.getString("correctStateColor")));
-            patternLockView.setWrongStateColor(Color.parseColor(props.getString("wrongStateColor")));
-            patternLockView.setDotAnimationDuration(props.getInt("dotAnimationDuration"));
-            patternLockView.setPathEndAnimationDuration(props.getInt("pathEndAnimationDuration"));
-
-            patternLockView.addPatternLockListener(patternLockViewListener);
-
-            frameLayout.removeAllViews();
-            frameLayout.addView(patternLockView);
+                if (props.getString("aspectRatio").equalsIgnoreCase("SQUARE")) {
+                    patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_SQUARE);
+                } else if (props.getString("aspectRatio").equalsIgnoreCase("WIDTH_BIAS")) {
+                    patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_WIDTH_BIAS);
+                } else if (props.getString("aspectRatio").equalsIgnoreCase("HEIGHT_BIAS")) {
+                    patternLockView.setAspectRatio(PatternLockView.AspectRatio.ASPECT_RATIO_HEIGHT_BIAS);
+                }
+            }
+            else if (key.equals("normalStateColor")) {
+                patternLockView.setNormalStateColor(Color.parseColor(props.getString("normalStateColor")));
+            }
+            else if (key.equals("correctStateColor")) {
+                patternLockView.setCorrectStateColor(Color.parseColor(props.getString("correctStateColor")));
+            }
+            else if (key.equals("wrongStateColor")) {
+                patternLockView.setWrongStateColor(Color.parseColor(props.getString("wrongStateColor")));
+            }
+            else if (key.equals("dotAnimationDuration")) {
+                patternLockView.setDotAnimationDuration(props.getInt("dotAnimationDuration"));
+            }
+            else if (key.equals("pathEndAnimationDuration")) {
+                patternLockView.setPathEndAnimationDuration(props.getInt("pathEndAnimationDuration"));
+            }
         }
 
         if (props.getString("lock").length() != 0) {
